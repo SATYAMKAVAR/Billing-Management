@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 
 const Profile = () => {
   const [data, setData] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoding] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState(false);
-  const { id } = useParams();
+  // const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const {id} = location.state;
   useEffect(() => {
     // const res = await fetch("/api/user/"+id);
     // setData(res.json());
@@ -20,6 +23,7 @@ const Profile = () => {
         setData(res);
       });
   }, []);
+  
   const handleChange = (e) => {
     setData({ ...data, [e.target.id]: e.target.value });
   };
@@ -27,6 +31,62 @@ const Profile = () => {
   const handleSignOut = () => {
     localStorage.removeItem("userToken");
     navigate("/");
+  };
+
+  const notifyWarning = (message) => {
+    toast(message, {
+      duration: 4000,
+      position: "top-center",
+
+      // Styling
+      style: {
+        backgroundColor: "yellow",
+      },
+      className: "",
+
+      // Custom Icon
+      icon: "⚠️",
+
+      // Change colors of success/error/loading icon
+      iconTheme: {
+        primary: "#000",
+        secondary: "yellow",
+      },
+
+      // Aria
+      ariaProps: {
+        role: "status",
+        "aria-live": "polite",
+      },
+    });
+  };
+
+  const notifyError = (message) => {
+    toast(message, {
+      duration: 4000,
+      position: "top-center",
+
+      // Styling
+      style: {
+        backgroundColor: "red",
+      },
+      className: "",
+
+      // Custom Icon
+      icon: "⚠️",
+
+      // Change colors of success/error/loading icon
+      iconTheme: {
+        primary: "#000",
+        secondary: "yellow",
+      },
+
+      // Aria
+      ariaProps: {
+        role: "status",
+        "aria-live": "polite",
+      },
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -44,31 +104,97 @@ const Profile = () => {
       if (resData.success === false) {
         setLoding(false);
         setError(resData.message);
+        notifyError(resData.message);
         return;
       }
       setLoding(false);
       setError(null);
-      setUpdateSuccess(true);
+      toast("User is updated successfully!", {
+        duration: 4000,
+        position: "bottom-center",
+
+        // Styling
+        style: {
+          backgroundColor: "#50BF5F",
+          marginBottom: "50px",
+          color: "white",
+        },
+        className: "",
+
+        // Custom Icon
+        icon: "🎉",
+
+        // Change colors of success/error/loading icon
+        iconTheme: {
+          primary: "#000",
+          secondary: "yellow",
+        },
+
+        // Aria
+        ariaProps: {
+          role: "status",
+          "aria-live": "polite",
+        },
+      });
     } catch (error) {
       setLoding(false);
       setError(error.message);
+      notifyError(error.message);
     }
   };
 
   const handleDeleteUser = async () => {
     try {
-      const res = await fetch(`/api/user/delete/${data._id}`, {
-        method: "DELETE",
+      // const res = await fetch(`/api/user/delete/${data._id}`, {
+      //   method: "DELETE",
+      // });
+      const res = await fetch(`/api/user/update/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ isActive: false }),
       });
       const resData = await res.json();
       if (resData.success === false) {
         setError(resData.message);
+        notifyError(resData.message);
         return;
       }
+      toast("User is Deactivate successfully!", {
+        duration: 2500,
+        position: "bottom-center",
+
+        // Styling
+        style: {
+          backgroundColor: "#50BF5F",
+          marginBottom: "50px",
+          color: "white",
+        },
+        className: "",
+
+        // Custom Icon
+        icon: "🎉",
+
+        // Change colors of success/error/loading icon
+        iconTheme: {
+          primary: "#000",
+          secondary: "yellow",
+        },
+
+        // Aria
+        ariaProps: {
+          role: "status",
+          "aria-live": "polite",
+        },
+      });
       setError(null);
-    navigate("/");
+      setInterval(() => {
+        navigate("/");
+      }, 3000);
     } catch (error) {
       setError(error.message);
+      notifyError(error.message);
     }
   };
   return (
@@ -110,6 +236,7 @@ const Profile = () => {
             className="border p-3 rounded-lg"
             defaultValue={data.username}
             onChange={handleChange}
+            required
           />
           <input
             type="email"
@@ -118,6 +245,7 @@ const Profile = () => {
             className="border p-3 rounded-lg"
             defaultValue={data.email}
             onChange={handleChange}
+            required
           />
           <input
             type="text"
@@ -126,6 +254,7 @@ const Profile = () => {
             className="border p-3 rounded-lg"
             defaultValue={data.password}
             onChange={handleChange}
+            required
           />
           <button className="bg-green-700 text-white rounded-lg p-3 uppercase hover:opacity-95 disabled:opacity-80">
             update
@@ -136,17 +265,22 @@ const Profile = () => {
             onClick={handleDeleteUser}
             className="text-red-700 cursor-pointer"
           >
-            Delete account
+            Deactivate account
           </span>
+          {/* <span
+            onClick={handleDeleteUser}
+            className="text-red-700 cursor-pointer"
+          >
+            Delete account
+          </span> */}
           <span className="text-red-700 cursor-pointer" onClick={handleSignOut}>
             Sign out
           </span>
         </div>
         <p className="text-red-700 mt-5">{error ? error : ""}</p>
-        <p className="text-green-700 mt-5">
-          {updateSuccess ? "User is updated successfully!" : ""}
-        </p>
+        <p className="text-green-700 mt-5"></p>
       </div>
+      <Toaster />
     </>
   );
 };

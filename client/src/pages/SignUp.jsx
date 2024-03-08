@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 
 const SignUp = () => {
@@ -12,26 +13,69 @@ const SignUp = () => {
       [e.target.id]: e.target.value,
     });
   };
+  
+  const notifyWarning = (message) => {
+    toast(message, {
+      duration: 2000,
+      position: "bottom-center",
+
+      // Styling
+      style: {
+        backgroundColor: "yellow",
+        marginBottom: "50px"
+      },
+      className: "",
+
+      // Custom Icon
+      icon: "⚠️",
+
+      // Change colors of success/error/loading icon
+      iconTheme: {
+        primary: "#000",
+        secondary: "yellow",
+      },
+
+      // Aria
+      ariaProps: {
+        role: "status",
+        "aria-live": "polite",
+      },
+    });
+  };
+
+  const notifyError = (message) => {
+    toast(message, {
+      duration: 4000,
+      position: "bottom-center",
+
+      // Styling
+      style: {
+        backgroundColor: "red",
+        marginBottom: "50px"
+      },
+      className: "",
+
+      // Custom Icon
+      icon: "⚠️",
+
+      // Change colors of success/error/loading icon
+      iconTheme: {
+        primary: "#000",
+        secondary: "yellow",
+      },
+
+      // Aria
+      ariaProps: {
+        role: "status",
+        "aria-live": "polite",
+      },
+    });
+  };
 
   const handlesubmit = async (e) => {
     try {
       e.preventDefault();
       setLoding(true);
-      if (formData.username == null) {
-        setLoding(false);
-        setError("Please enter a username");
-        return;
-      }
-      if (formData.email == null) {
-        setError("Please enter a email");
-        setLoding(false);
-        return;
-      }
-      if (formData.password == null) {
-        setError("Please enter a password");
-        setLoding(false);
-        return;
-      }
       const res = await fetch("/api/auth/signup", {
         method: "post",
         headers: {
@@ -40,16 +84,46 @@ const SignUp = () => {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      console.log(data);
       if (data.success === false) {
         setLoding(false);
         setError(data.message);
+        notifyError(data.message);
         return;
       }
       setLoding(false);
       setError(null);
-      alert("Your id has been generated now you can sign in");
-      navigate("/sign-in");
+      // alert("Your id has been generated now you can sign in");
+      // notifyWarning("your id has been generated now you can sign in");
+      toast("your id has been generated now you can sign in", {
+          duration: 3000,
+          position: "bottom-center",
+    
+          // Styling
+          style: {
+            backgroundColor: "#50BF5F",
+            marginBottom: "50px",
+            color: "white",
+          },
+          className: "",
+    
+          // Custom Icon
+          icon: "🎉",
+    
+          // Change colors of success/error/loading icon
+          iconTheme: {
+            primary: "#000",
+            secondary: "yellow",
+          },
+    
+          // Aria
+          ariaProps: {
+            role: "status",
+            "aria-live": "polite",
+          },
+        });
+      setTimeout(() => {
+        navigate("/sign-in");
+      }, 3000);
     } catch (error) {
       setLoding(false);
       setError(error.message);
@@ -65,6 +139,7 @@ const SignUp = () => {
           id="username"
           className="border p-3 rounded-lg"
           onChange={handleChange}
+          required
         />
         <input
           type="email"
@@ -72,6 +147,7 @@ const SignUp = () => {
           id="email"
           className="border p-3 rounded-lg"
           onChange={handleChange}
+          required
         />
         <input
           type="password"
@@ -79,6 +155,7 @@ const SignUp = () => {
           id="password"
           className="border p-3 rounded-lg"
           onChange={handleChange}
+          required
         />
         <button
           disabled={loading}
@@ -93,7 +170,8 @@ const SignUp = () => {
           <span className="text-blue-700">Sign in</span>
         </Link>
       </div>
-      {error && <p className="text-red-500 mt-5">{error}</p>}
+      {/* {error && <p className="text-red-500 mt-5">{error}</p>} */}
+      <Toaster />
     </div>
   );
 };

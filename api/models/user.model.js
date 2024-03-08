@@ -20,6 +20,19 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "https://logodix.com/logo/1984127.png",
     },
+    isActive: { type: Boolean, default: true },
+    categories: {
+      type: [String],
+      default: [
+        "Choose a Categories",
+        "Shopping",
+        "Food & Dining",
+        "Personal Care",
+        "Education",
+        "Travel",
+        "Other",
+      ],
+    },
     bills: [
       {
         description: { type: String, required: true },

@@ -36,6 +36,7 @@ export const updateUser = async (req, res, next) => {
           email: req.body.email,
           password: req.body.password,
           avatar: req.body.avatar,
+          isActive: req.body.isActive,
         },
       },
       { new: true }
@@ -73,16 +74,16 @@ export const getBills = async (req, res, next) => {
 
 export const addbills = async (req, res, next) => {
   const { id } = req.params;
-  const { description, categories, date, amount} = req.body;
+  const { description, categories, date, amount } = req.body;
   try {
-    const addNotes = await User.findByIdAndUpdate(
+    const addBills = await User.findByIdAndUpdate(
       id,
-      { $push: { bills: { description, categories, date, amount} } },
+      { $push: { bills: { description, categories, date, amount } } },
       { new: true }
-      );
-      res.status(200).json(addNotes);
-    } catch (error) {
-      next(error);
+    );
+    res.status(200).json(addBills);
+  } catch (error) {
+    next(error);
   }
 };
 
@@ -90,13 +91,13 @@ export const deletebills = async (req, res, next) => {
   const { id } = req.params;
   const { index } = req.body;
   try {
-    const deleteNotes = await User.findByIdAndUpdate(
+    const deleteBills = await User.findByIdAndUpdate(
       id,
       { $unset: { [`bills.${index}`]: "1" } },
       { new: true }
     );
     await User.findByIdAndUpdate(id, { $pull: { bills: null } }, { new: true });
-    res.status(200).json(deleteNotes);
+    res.status(200).json(deleteBills);
   } catch (error) {
     next(error);
   }
@@ -104,14 +105,41 @@ export const deletebills = async (req, res, next) => {
 
 export const updatebills = async (req, res, next) => {
   const { id } = req.params;
-  const { description, categories, date, amount , index} = req.body;
+  const { description, categories, date, amount, index } = req.body;
   try {
-    const updateNotes = await User.findByIdAndUpdate(
+    const updateBills = await User.findByIdAndUpdate(
       id,
-      { $set: { [`bills.${index}`]: { description, categories, date, amount} } },
+      {
+        $set: { [`bills.${index}`]: { description, categories, date, amount } },
+      },
       { new: true }
     );
-    res.status(200).json(updateNotes);
+    res.status(200).json(updateBills);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getCategories = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findById(id);
+    res.status(200).json(user.categories);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateCategories = async (req, res, next) => {
+  const { id } = req.params;
+  const { categories } = req.body;
+  try {
+    const updateCategories = await User.findByIdAndUpdate(
+      id,
+      { $set: { categories: categories } },
+      { new: true }
+    );
+    res.status(200).json(updateCategories);
   } catch (error) {
     next(error);
   }

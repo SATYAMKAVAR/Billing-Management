@@ -1,15 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
-import { ToastContainer } from "react-toastify";
 
 const Signin = () => {
   const [formData, setFormData] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoding] = useState(false);
   // const { id } = useParams();
-  const notify = () => toast.success("Here is your toast.");
-
+  
   const navigate = useNavigate();
   const handleChange = (e) => {
     setFormData({
@@ -17,6 +15,66 @@ const Signin = () => {
       [e.target.id]: e.target.value,
     });
   };
+
+  const notifyWarning = (message) => {
+    toast(message, {
+      duration: 4000,
+      position: "bottom-center",
+
+      // Styling
+      style: {
+        backgroundColor: "yellow",
+        marginBottom: "50px"
+      },
+      className: "",
+
+      // Custom Icon
+      icon: "⚠️",
+
+      // Change colors of success/error/loading icon
+      iconTheme: {
+        primary: "#000",
+        secondary: "yellow",
+      },
+
+      // Aria
+      ariaProps: {
+        role: "status",
+        "aria-live": "polite",
+      },
+    });
+  };
+
+  const notifyError = (message) => {
+    toast(message, {
+      duration: 4000,
+      position: "bottom-center",
+
+      // Styling
+      style: {
+        backgroundColor: "red",
+        marginBottom: "50px",
+        color: "white",
+      },
+      className: "",
+
+      // Custom Icon
+      icon: "⚠️",
+
+      // Change colors of success/error/loading icon
+      iconTheme: {
+        primary: "white",
+        secondary: "white",
+      },
+
+      // Aria
+      ariaProps: {
+        role: "status",
+        "aria-live": "polite",
+      },
+    });
+  };
+
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
@@ -32,64 +90,17 @@ const Signin = () => {
       if (data.success === false) {
         setLoding(false);
         setError(data.message);
-        toast.error(data.message, {
-          // Auto dismiss after 4 seconds
-          duration: 4000,
-          // Styling
-  
-          style: {
-            color: "white",
-            backgroundColor:"red"
-          },
-          className: "",
-  
-          // Custom Icon
-          icon: "",
-  
-          // Change colors of success/error/loading icon
-          iconTheme: {
-            primary: "#000",
-            secondary: "#fff",
-          },
-  
-          // Aria
-          role: "status",
-          ariaLive: "polite",
-        });
-        return;
+        notifyError(data.message);
+        return ;
       }
-      toast.success("Signed in successfully", {
-        // Auto dismiss after 4 seconds
-        duration: 4000,
-        // Styling
-
-        style: {
-          color: "white",
-        },
-        className: "",
-
-        // Custom Icon
-        // icon: "👏",
-
-        // Change colors of success/error/loading icon
-        iconTheme: {
-          primary: "#000",
-          secondary: "#fff",
-        },
-
-        // Aria
-        role: "status",
-        ariaLive: "polite",
-      });
       localStorage.setItem("userToken", "true");
       setLoding(false);
       setError(null);
-      setTimeout(() => {
-        navigate("/Dashboard/" + data._id);
-      }, 1000);
+      navigate("/Dashboard",{state: {id: data._id}});
     } catch (error) {
       setLoding(false);
       setError(error.message);
+      notifyError(error.message);
     }
   };
   return (
@@ -102,6 +113,7 @@ const Signin = () => {
           id="email"
           className="border p-3 rounded-lg"
           onChange={handleChange}
+          required
         />
         <input
           type="password"
@@ -109,6 +121,7 @@ const Signin = () => {
           id="password"
           className="border p-3 rounded-lg"
           onChange={handleChange}
+          required
         />
         <button
           disabled={loading}
@@ -117,33 +130,13 @@ const Signin = () => {
           {loading ? "Loading..." : "Sign In"}
         </button>
       </form>
-      <Toaster
-        toastOptions={{
-          className: "",
-          // style: {
-          //   border: "1px solid #713200",
-          //   padding: "16px",
-          //   backgroundColor: "green",
-          // },
-          success: {
-            style: {
-              background: 'green',
-            },
-          },
-          error: {
-            style: {
-              background: 'red',
-            },
-          },
-        }}
-      />
       <div className="flex gap-2 mt-5">
         <p>Dont have an account?</p>
         <Link to={"/sign-up"}>
           <span className="text-blue-700">Sign up</span>
         </Link>
       </div>
-      {error && <p className="text-red-500 mt-5">{error}</p>}
+      <Toaster />
     </div>
   );
 };
