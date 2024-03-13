@@ -86,7 +86,6 @@ const AddBill = () => {
     setFormData({
       ...FormData,
       [e.target.id]: e.target.value,
-      date: today,
     });
   };
 
@@ -336,7 +335,6 @@ const AddBill = () => {
                 <label
                   className="block text-gray-600 font-bold md:text-left mb-3 md:mb-0 pr-4"
                   htmlFor="date"
-                  onChange={handleChange}
                 >
                   Date
                   <span class="required bold" style={{ color: "red" }}>
@@ -350,8 +348,8 @@ const AddBill = () => {
                   className="htmlForm-input border p-3 rounded-lg block w-full focus:bg-white"
                   id="date"
                   type="Date"
+                  defaultValue={today}
                   onChange={handleChange}
-                  value={today}
                 />
               </div>
             </div>

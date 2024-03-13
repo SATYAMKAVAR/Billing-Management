@@ -1,5 +1,11 @@
 import mongoose from "mongoose";
 
+var today = new Date();
+var dd = String(today.getDate()).padStart(2, "0");
+var mm = String(today.getMonth() + 1).padStart(2, "0");
+var yyyy = today.getFullYear();
+today = yyyy + "-" + mm + "-" + dd;
+
 const userSchema = new mongoose.Schema(
   {
     username: {
@@ -37,7 +43,7 @@ const userSchema = new mongoose.Schema(
       {
         description: { type: String, required: true },
         categories: { type: String, required: true },
-        date: { type: String, required: true },
+        date: { type: String, default: today },
         amount: { type: Number, required: true },
       },
     ],

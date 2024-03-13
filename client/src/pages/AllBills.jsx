@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
+import { FcAlphabeticalSortingAz, FcNumericalSorting12 } from "react-icons/fc";
+
 import Header from "../components/Header";
-import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  Navigate,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import { MdDeleteForever, MdEditSquare } from "react-icons/md";
 
 const AllBills = () => {
@@ -12,7 +19,7 @@ const AllBills = () => {
   const [sortDescription, setSortDescription] = useState(true);
   // const { id } = useParams();
   const location = useLocation();
-  const {id} = location.state;
+  const { id } = location.state;
   const navigate = useNavigate();
   useEffect(() => {
     fetch("/api/user/bills/" + id)
@@ -33,11 +40,12 @@ const AllBills = () => {
 
   const handleChange = (e) => {
     setFormData({ categories: e.target.value });
-    console.log(formData);
   };
 
   const handleSortingDescription = () => {
     setSortDescription(!sortDescription);
+    setSortAmount(true);
+    setSortDate(true);
     console.log(data.bills.slice());
     if (sortDescription === true) {
       setData((prevData) => ({
@@ -52,11 +60,13 @@ const AllBills = () => {
         .then((res) => {
           setData(res);
         });
-    }
-  };
-
-  const handleSortingAmount = () => {
+      }
+    };
+    
+    const handleSortingAmount = () => {
     setSortAmount(!sortAmount);
+    setSortDescription(true);
+    setSortDate(true);
     if (sortAmount === true) {
       setData((prevData) => ({
         ...prevData,
@@ -76,7 +86,10 @@ const AllBills = () => {
   };
 
   const handleSortingDate = () => {
+
     setSortDate(!sortDate);
+    setSortDescription(true);
+    setSortAmount(true);
     if (sortDate === true) {
       setData((prevData) => ({
         ...prevData,
@@ -111,7 +124,7 @@ const AllBills = () => {
   const formatedData = data.bills.map((d, index) => {
     if (formData.categories === undefined) {
     } else {
-      if (formData.categories === "Choose a Categories") {
+      if (formData.categories === "All Categories") {
       } else {
         if (d.categories != formData.categories) {
           return;
@@ -134,7 +147,7 @@ const AllBills = () => {
             className="mr-3 text-sm  py-1 px-2 rounded focus:outline-none focus:shadow-outline"
             // bg-slate-500 hover:bg-slate-800 text-white
             onClick={() => {
-              navigate("/UpdateBill/"+ index,{state:{id:id}});
+              navigate("/UpdateBill/" + index, { state: { id: id } });
             }}
           >
             {/* Edit */}
@@ -155,12 +168,13 @@ const AllBills = () => {
       </tr>
     );
   });
+
   return (
     <>
       <Header />
       <div className="text-gray-900 ">
         <div className="p-5 flex justify-center ">
-          <h1 className="text-5xl">All Bills</h1>
+          <h1 className="text-5xl font-mono">All Bills</h1>
         </div>
         <div className="px-3 py-4 flex justify-center">
           <table className="w-full text-md bg-white shadow-md rounded mb-4">
@@ -173,8 +187,8 @@ const AllBills = () => {
                     id="categories"
                     onChange={handleChange}
                   >
-                    <option defaultValue="Choose a Categories">
-                      Choose a Categories
+                    <option defaultValue="All Categories">
+                      All Categories
                     </option>
                     {categories.map((c) => {
                       return (
@@ -189,13 +203,27 @@ const AllBills = () => {
                   className="text-left p-3 px-5 hover:cursor-pointer"
                   onClick={handleSortingDescription}
                 >
-                  description
+                  <div className="flex items-center">
+                    <div>Description</div>
+                    {!sortDescription && (
+                      <div className="ps-3">
+                        <FcAlphabeticalSortingAz size={"20"}/>
+                      </div>
+                    )}
+                  </div>
                 </th>
                 <th
                   className="text-left p-3 px-5 hover:cursor-pointer"
                   onClick={handleSortingAmount}
                 >
-                  Amount
+                  <div className="flex items-center">
+                    <div>Amount</div>
+                    {!sortAmount && (
+                      <div className="ps-3">
+                        <FcNumericalSorting12 size={"20"}/>
+                      </div>
+                    )}
+                  </div>
                 </th>
                 <th
                   className="text-left p-3 px-5 hover:cursor-pointer"
