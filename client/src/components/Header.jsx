@@ -3,20 +3,14 @@ import { FaSearch } from "react-icons/fa";
 import { useEffect, useState } from "react";
 
 const Header = () => {
-  const [issignedin, setIssignedin] = useState(false);
   // const { id } = useParams();
   const location = useLocation();
-  const {id} = location.state;
-  useEffect(() => {
-    const userToken = localStorage.getItem('userToken');
-    if (userToken) {
-      setIssignedin(true);
-    }
-  }, [issignedin]);
+  const { id } = location.state;
+
   return (
     <header className="bg-slate-200 shadow-md">
       <div className="flex justify-between items-center max-w-6xl mx-auto p-3">
-        <Link to={"/Dashboard"} state={{id:id}}>
+        <Link to={"/Dashboard"} state={{ id: id }}>
           <h1 className="font-bold text-sm sm:text-xl flex flex-wrap">
             <span className="text-slate-600">Billing</span>
             <span className="text-slate-800">Management-System</span>
@@ -31,39 +25,33 @@ const Header = () => {
           <FaSearch />
         </form> */}
         <ul className="flex gap-4">
-          <Link to={"/Dashboard"} state={{id:id}}>
+          <Link to={"/Dashboard"} state={{ id: id }}>
             <li className="hidden sm:inline text-slate-800 hover:underline">
               Home
             </li>
           </Link>
-          <Link to={"/About"} state={{id:id}}>
-            <li className="hidden sm:inline text-slate-800 hover:underline">
-              About
-            </li>
-          </Link>
-          <Link to={"/CreateNewBill"} state={{id:id}}>
+          <Link to={"/CreateNewBill"} state={{ id: id }}>
             <li className="hidden sm:inline text-slate-800 hover:underline">
               Create New Bill
             </li>
           </Link>
-          <Link to={"/AllBill"} state={{id:id}}>
+          <Link to={"/AllCategories"} state={{ id: id }}>
+            <li className="hidden sm:inline text-slate-800 hover:underline">
+              All categories
+            </li>
+          </Link>
+          <Link to={"/AllBill"} state={{ id: id }}>
             <li className="hidden sm:inline text-slate-800 hover:underline">
               All Bill
             </li>
           </Link>
-          {issignedin ? (
-            <Link to={"/profile"} state={{id:id}}>
-              <img
-                className="rounded-full h-7 w-7 object-cover"
-                src="https://logodix.com/logo/1984127.png"
-                alt="Profile"
-              />
-            </Link>
-          ) : (
-            <Link to="/sign-in">
-              <li className="text-slate-800 hover:underline">Sign in</li>
-            </Link>
-          )}
+          <Link to={"/profile"} state={{ id: id }}>
+            <img
+              className="rounded-full h-7 w-7 object-cover"
+              src="https://logodix.com/logo/1984127.png"
+              alt="Profile"
+            />
+          </Link>
         </ul>
       </div>
     </header>

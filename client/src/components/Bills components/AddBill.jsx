@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Header from "../components/Header";
+import Header from "../Header";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import { IoMdAddCircleOutline } from "react-icons/io";
@@ -178,7 +178,7 @@ const AddBill = () => {
   return (
     <>
       <Header />
-      <div className="p-3 max-w-5xl mx-auto">
+      <div className="p-3 pt-32 max-w-5xl mx-auto">
         <div className="p-8 mt-6 lg:mt-0 rounded shadow bg-slate-200">
           <form onSubmit={handlesubmit}>
             {/* Categories */}
@@ -354,7 +354,7 @@ const AddBill = () => {
               </div>
             </div>
 
-            <div className="md:flex mb-6">
+            {/* <div className="md:flex mb-6">
               <div className="md:w-1/3">
                 <label
                   className="block text-gray-600 font-bold md:text-left mb-3 md:mb-0 pr-4"
@@ -374,7 +374,7 @@ const AddBill = () => {
                   add notes about populating the field
                 </p>
               </div>
-            </div>
+            </div> */}
 
             {/* save */}
             <div className="md:flex md:items-center">
