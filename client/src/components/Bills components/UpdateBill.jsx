@@ -9,13 +9,10 @@ const UpdateBill = () => {
   const [billDetails, setBillDetails] = useState({});
   const [categories, setcategories] = useState([]);
   const [categoriesData, setcategoriesData] = useState("");
-  const [error, setError] = useState(null);
-  const [loading, setLoding] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
-  // const { id } = useParams();
   const location = useLocation();
-  const {id} = location.state;
+  const { id } = location.state;
   const { index } = useParams();
   useEffect(() => {
     fetch("/api/user/bills/" + id)
@@ -35,6 +32,7 @@ const UpdateBill = () => {
 
   const closeModal = () => {
     setShowModal(false);
+    // toast.loading.remove();
   };
 
   const handleCategoriesChange = (e) => {
@@ -43,15 +41,13 @@ const UpdateBill = () => {
 
   const handleAddCategory = async () => {
     try {
-      setLoding(true);
+      const notifiyloading = toast.loading("Loadong...");
       if (categoriesData == "") {
-        setLoding(false);
-        notifyWarning("Please enter a categorie");
+        notifyWarning("Please enter a categorie", notifiyloading);
         return;
       }
-
-      const res = await fetch("/api/user/updateCategories/" + id, {
-        method: "put",
+      const res = await fetch("/api/user/addCategories/" + id, {
+        method: "post",
         headers: {
           "Content-Type": "application/json",
         },
@@ -59,8 +55,10 @@ const UpdateBill = () => {
       });
       const data = await res.json();
       if (data.success === false) {
-        setLoding(false);
-        notifyError(data.message);
+        toast.error(data.message, {
+          id: notifiyloading,
+          style: { backgroundColor: "red", color: "white" },
+        });
         return;
       }
 
@@ -71,12 +69,13 @@ const UpdateBill = () => {
         .then((res) => {
           setcategories(res);
         });
-
-      setLoding(false);
+      toast.success("categories added successfully", notifiyloading);
       closeModal();
     } catch (error) {
-      setLoding(false);
-      notifyError(error.message);
+      toast.error(error.message, {
+        id: notifiyloading,
+        style: { backgroundColor: "red", color: "white" },
+      });
     }
   };
 
@@ -86,11 +85,11 @@ const UpdateBill = () => {
       [e.target.id]: e.target.value,
       index: index,
     });
-    console.log(billDetails);
   };
 
-  const notifyWarning = (message) => {
+  const notifyWarning = (message, notifiyloading) => {
     toast(message, {
+      id: notifiyloading,
       duration: 4000,
       position: "top-center",
 
@@ -98,8 +97,6 @@ const UpdateBill = () => {
       style: {
         backgroundColor: "yellow",
       },
-      className: "",
-
       // Custom Icon
       icon: "⚠️",
 
@@ -107,40 +104,6 @@ const UpdateBill = () => {
       iconTheme: {
         primary: "#000",
         secondary: "yellow",
-      },
-
-      // Aria
-      ariaProps: {
-        role: "status",
-        "aria-live": "polite",
-      },
-    });
-  };
-
-  const notifyError = (message) => {
-    toast(message, {
-      duration: 4000,
-      position: "top-center",
-
-      // Styling
-      style: {
-        backgroundColor: "red",
-      },
-      className: "",
-
-      // Custom Icon
-      icon: "⚠️",
-
-      // Change colors of success/error/loading icon
-      iconTheme: {
-        primary: "#000",
-        secondary: "yellow",
-      },
-
-      // Aria
-      ariaProps: {
-        role: "status",
-        "aria-live": "polite",
       },
     });
   };
@@ -148,7 +111,7 @@ const UpdateBill = () => {
   const handlesubmit = async (e) => {
     try {
       e.preventDefault();
-      setLoding(true);
+      const notifiyloading = toast.loading("Loadong...");
       const res = await fetch("/api/user/updateBill/" + id, {
         method: "put",
         headers: {
@@ -158,17 +121,19 @@ const UpdateBill = () => {
       });
       const data = await res.json();
       if (data.success === false) {
-        setLoding(false);
-        setError(data.message);
-        notifyError(data.message);
+        toast.error(data.message, {
+          id: notifiyloading,
+          style: { backgroundColor: "red", color: "white" },
+        });
         return;
       }
-      setLoding(false);
-      setError(null);
-      navigate("/AllBill",{state:{id:id}});
+      toast.success("Bill updated successfully", { id: notifiyloading });
+      navigate("/AllBills", { state: { id: id } });
     } catch (error) {
-      setLoding(false);
-      setError(error.message);
+      toast.error(error.message, {
+        id: notifiyloading,
+        style: { backgroundColor: "red", color: "white" },
+      });
     }
   };
   return (
@@ -219,6 +184,7 @@ const UpdateBill = () => {
                 </button>
               </div>
             </div>
+
             {showModal && (
               <div className="fixed inset-0 z-10 overflow-y-auto">
                 <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -270,6 +236,7 @@ const UpdateBill = () => {
                 </div>
               </div>
             )}
+
             {/* description */}
             <div className="md:flex mb-6">
               <div className="md:w-1/3">
@@ -351,43 +318,28 @@ const UpdateBill = () => {
               </div>
             </div>
 
-            {/* <div className="md:flex mb-6">
-              <div className="md:w-1/3">
-                <label
-                  className="block text-gray-600 font-bold md:text-left mb-3 md:mb-0 pr-4"
-                  htmlFor="my-textarea"
-                >
-                  Text Area
-                </label>
-              </div>
-              <div className="md:w-2/3">
-                <textarea
-                  className="htmlForm-textarea block w-full focus:bg-white"
-                  id="my-textarea"
-                  value=""
-                  rows="8"
-                ></textarea>
-                <p className="py-2 text-sm text-gray-600">
-                  add notes about populating the field
-                </p>
-              </div>
-            </div> */}
-
-            {/* save */}
+            {/* Buttons */}
             <div className="md:flex md:items-center">
               <div className="md:w-1/3"></div>
-              <div className="md:w-2/3">
+              <div className="md:w-2/3 flex justify-between">
                 <button
                   className="shadow bg-green-700 hover:bg-green-500 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded"
                   type="submit"
                 >
                   Update
                 </button>
+                <button
+                  className="shadow bg-slate-800 hover:bg-slate-500 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded"
+                  onClick={() => {
+                    navigate("/AllBills", { state: { id: id } });
+                  }}
+                >
+                  Discard
+                </button>
               </div>
             </div>
           </form>
         </div>
-        <Toaster />
       </div>
     </>
   );

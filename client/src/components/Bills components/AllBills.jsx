@@ -3,6 +3,7 @@ import { FcAlphabeticalSortingAz, FcNumericalSorting12 } from "react-icons/fc";
 import Header from "../Header";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MdDeleteForever, MdEditSquare } from "react-icons/md";
+import toast from "react-hot-toast";
 
 const AllBills = () => {
   const [data, setData] = useState({ bills: [] });
@@ -13,10 +14,10 @@ const AllBills = () => {
   const [sortAmount, setSortAmount] = useState(true);
   const [sortDate, setSortDate] = useState(true);
   const [sortDescription, setSortDescription] = useState(true);
-  const [confirmDelete, setConfirmDelete] = useState(false);
   const location = useLocation();
   const { id } = location.state;
   const navigate = useNavigate();
+  
   useEffect(() => {
     fetch("/api/user/bills/" + id)
       .then((res) => {
@@ -110,26 +111,41 @@ const AllBills = () => {
   };
 
   const handleDelete = async (index) => {
-    if (!confirm("Are you sure you want to delete ")) {
-      return;
+    try {
+      if (!confirm("Are you sure you want to delete ")) {
+        return;
+      }
+      const notifiyloading = toast.loading("Loading...");
+      const res = fetch("/api/user/deleteBill/" + id, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ index: index }),
+      });
+      if (res.success === false) {
+        toast.error(data.message, {
+          id: notifiyloading,
+          style: { backgroundColor: "red", color: "white" },
+        });
+        return;
+      }
+      setData((prevData) => ({
+        ...prevData,
+        bills: prevData.bills.filter((bill, i) => i !== index),
+      }));
+      toast.success("Bill deleted successfully", { id: notifiyloading });
+    } catch (error) {
+      toast.error(error.message, {
+        id: notifiyloading,
+        style: { backgroundColor: "red", color: "white" },
+      });
     }
-    setConfirmDelete(true);
-
-    fetch("/api/user/deleteBill/" + id, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ index: index }),
-    });
-    setData((prevData) => ({
-      ...prevData,
-      bills: prevData.bills.filter((bill, i) => i !== index),
-    }));
-    setConfirmDelete(false);
   };
 
+  var totalAmount = 0;
   const formatedData = data.bills.map((d, index) => {
+
     if (formData.categories === undefined) {
     } else {
       if (formData.categories === "All Categories") {
@@ -165,11 +181,11 @@ const AllBills = () => {
         }
       }
     }
-
+    totalAmount = totalAmount + d.amount;
     return (
       <tr
         key={index}
-        className="border-b hover:bg-slate-300 hover:text-slate-700 bg-gray-100"
+        className="border-b hover:bg-slate-300 transition-all hover:text-slate-700 bg-gray-100"
       >
         <td className="p-3 border px-5">{d.categories}</td>
         <td className="p-3 border px-5">{d.description}</td>
@@ -177,7 +193,6 @@ const AllBills = () => {
         <td className="p-3 border px-5">{d.date}</td>
         <td className="p-3 border px-5">
           <button
-            type="button"
             className="mr-3 text-sm  py-1 px-2 rounded focus:outline-none focus:shadow-outline"
             // bg-slate-500 hover:bg-slate-800 text-white
             onClick={() => {
@@ -185,10 +200,9 @@ const AllBills = () => {
             }}
           >
             {/* Edit */}
-            <MdEditSquare size={"30px"} />
+            <MdEditSquare color="green" size={"30px"} />
           </button>
           <button
-            type="button"
             // bg-red-500 hover:bg-red-700 text-white
             className="text-sm  py-1 px-2 rounded focus:outline-none focus:shadow-outline"
             onClick={() => {
@@ -196,7 +210,7 @@ const AllBills = () => {
             }}
           >
             {/* Delete */}
-            <MdDeleteForever size={"30px"} />
+            <MdDeleteForever color="red" size={"30px"} />
           </button>
         </td>
       </tr>
@@ -216,7 +230,7 @@ const AllBills = () => {
             <input
               type="date"
               id="startDate"
-              className="border p-3 rounded-lg w-full sm:w-auto"
+              className="border bg-slate-200 p-3 rounded-lg w-full sm:w-auto"
               onChange={handleSearchChange}
             />
           </div>
@@ -225,7 +239,7 @@ const AllBills = () => {
             <input
               type="date"
               id="endDate"
-              className="border p-3 rounded-lg w-full sm:w-auto"
+              className="border bg-slate-200 p-3 rounded-lg w-full sm:w-auto"
               onChange={handleSearchChange}
             />
           </div>
@@ -235,7 +249,7 @@ const AllBills = () => {
               type="number"
               id="minAmount"
               placeholder="Minimum amount"
-              className="border p-3 rounded-lg w-full sm:w-auto"
+              className="border bg-slate-200 p-3 rounded-lg w-full sm:w-auto"
               onChange={handleSearchChange}
             />
           </div>
@@ -245,14 +259,14 @@ const AllBills = () => {
               type="number"
               id="maxAmount"
               placeholder="Maximum amount"
-              className="border p-3 rounded-lg w-full sm:w-auto"
+              className="border bg-slate-200 p-3 rounded-lg w-full sm:w-auto"
               onChange={handleSearchChange}
             />
           </div>
-          <div className="w-full sm:w-auto">
+          <div className="w-full sm:w-auto pt-2 sm:mb-0">
             <button
               type="button"
-              className="text-sm bg-slate-700 hover:bg-slate-500 text-white py-3 px-4 rounded"
+              className="text-sm bg-slate-700 hover:bg-slate-500 text-white py-2 px-4 rounded"
               onClick={handleSearch}
             >
               Search
@@ -264,7 +278,7 @@ const AllBills = () => {
           <table className="w-full text-md border bg-white shadow-md rounded mb-4">
             <tbody>
               <tr className="border-b">
-                <th className="text-left border p-3 px-5">
+                <th className="text-left transition-all hover:bg-slate-300  border p-3 px-5">
                   <select
                     name=""
                     className="htmlForm-select border rounded-lg p-3 block w-full focus:bg-white"
@@ -284,7 +298,7 @@ const AllBills = () => {
                   </select>
                 </th>
                 <th
-                  className="text-left p-3 px-5 border hover:cursor-pointer"
+                  className="text-left transition-all hover:bg-slate-300  p-3 px-5 border hover:cursor-pointer"
                   onClick={handleSortingDescription}
                 >
                   <div className="flex items-center">
@@ -297,7 +311,7 @@ const AllBills = () => {
                   </div>
                 </th>
                 <th
-                  className="text-left p-3 px-5 border hover:cursor-pointer"
+                  className="text-left transition-all hover:bg-slate-300  p-3 px-5 border hover:cursor-pointer"
                   onClick={handleSortingAmount}
                 >
                   <div className="flex items-center">
@@ -310,24 +324,44 @@ const AllBills = () => {
                   </div>
                 </th>
                 <th
-                  className="text-left border p-3 px-5 hover:cursor-pointer"
+                  className="text-left transition-all hover:bg-slate-300  border p-3 px-5 hover:cursor-pointer"
                   onClick={handleSortingDate}
                 >
                   date
                 </th>
-                <th className="text-left p-3 px-5">Action</th>
+                <th className="text-left transition-all hover:bg-slate-300  p-3 px-5">Action</th>
               </tr>
               {formatedData == "" ? (
                 <tr>
                   <td colSpan="5">
                     <h1 className="flex justify-center p-4 bg-slate-300 text-3xl">
-                      No data
+                      No Bill Present
                     </h1>
                   </td>
                 </tr>
               ) : (
                 formatedData
               )}
+              <tr>
+                <td colSpan="5">
+                  <h1 className="flex justify-center p-4 bg-slate-300 text-2xl">
+                    Total Bill Amount : {totalAmount}
+                  </h1>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan="5 ">
+                  <div className="flex justify-center p-4">
+                    <button className="button bg-slate-700 hover:bg-slate-500 rounded text-white px-4 py-2 "
+                      onClick={() => {
+                        navigate("/CreateNewBill", { state: { id: id } });
+                      }}
+                    >
+                      Create a new Bill
+                    </button>
+                  </div>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>

@@ -6,6 +6,11 @@ import nodemailer from "nodemailer";
 
 const signup = async (req, res, next) => {
   const { username, email, password } = req.body;
+  const validUserName = await User.findOne({ username });
+  if (validUserName) return next(errorHandler(404, "UserName already exists!"));
+  const validUser = await User.findOne({ email });
+  if (validUser) return next(errorHandler(404, "User already exists!"));
+
   const hasedpassword = await bcryptjs.hashSync(password, 10);
   const newUser = new User({ username, email, password: hasedpassword });
   try {
@@ -37,48 +42,75 @@ const signin = async (req, res, next) => {
   }
 };
 
-const activeEmail = async (req, res, next) => {
+const sendOTP = async (req, res, next) => {
   try {
-    const { email ,to ,subject , description } = req.body;
-    const validUser = await User.findOne({ email:to });
+    const { toUser } = req.body;
+    const validUser = await User.findOne({ email: toUser });
     if (!validUser) return next(errorHandler(404, "User not found!"));
 
-    var transporter = nodemailer.createTransport({
+    let transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: `process.env.authEmail`,
-        pass: `process.env.authEmailpassword`,
+        user: process.env.authEmail,
+        pass: process.env.authEmailPassword,
       },
     });
-    console.log(process.env.authEmail);
-    console.log(process.env.authEmailpassword);
-    // const otp =
-    var mailOptions = {
-      from: `process.env.authEmail`,
-      to: to,
-      subject: subject,
-      text: description,
-      html: `
-    <div style="padding:10px;border-style: ridge">
-    <h4>This mail from Billing Management System </h4>
-    <ul>
-        <li>Email: ${req.body.to}</li>
-        <li>Subject: ${req.body.subject}</li>
-        <li>Message: ${req.body.description}</li>
-    </ul>
-    <div>
-      <h3>Here is your active approval code:</h3>
-      <h1>123456</h1>
-    </div>
-  `,
+
+    const generateOTP = () => {
+      var otp = "";
+      for (var i = 0; i < 6; i++) {
+        const randomIndex = Math.floor(Math.random() * 10);
+        otp += randomIndex;
+      }
+      return otp;
     };
-    transporter.sendMail(mailOptions, function (error, info) {
+    const otp = generateOTP();
+
+    let mailOptions = {
+      from: process.env.authEmail,
+      to: toUser,
+      subject: "Test Email",
+      html: `
+      <div style="padding:10px;border-style: ridge">
+        <h5>This mail from Billing Management System </h5>
+        <ul>
+          <li>Email : ${req.body.to}</li>
+          <li>Subject : Active your id</li>
+        </ul>
+        <div>
+          <h3>Here is your active approval code :</h3>
+          <h1>${otp}</h1>
+        </div>
+      </div>`,
+    };
+    transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         res.json({ status: false, respMesg: error });
       } else {
-        res.json({ status: true, respMesg: "Email Sent Successfully" });
+        res.json({
+          status: true,
+          respMesg: "Email Sent Successfully",
+          otp: otp,
+        });
       }
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const activeEmail = async (req, res, next) => {
+  try {
+    const { toUser } = req.body;
+    const validUser = await User.findOne({ email: toUser });
+    if (!validUser) return next(errorHandler(404, "User not found!"));
+    if (validUser.isActive) {
+      res.json("Your account is already activated");
+      return;
+    }
+    validUser.isActive = true;
+    validUser.save();
+    res.status(200).json("Your account has been activated");
   } catch (error) {
     next(error);
   }
@@ -120,4 +152,4 @@ const activeEmail = async (req, res, next) => {
 //   }
 // };
 
-export { signin, signup, activeEmail };
+export { signin, signup, sendOTP, activeEmail };

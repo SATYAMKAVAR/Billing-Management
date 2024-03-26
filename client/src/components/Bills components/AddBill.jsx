@@ -1,20 +1,18 @@
 import { useEffect, useState } from "react";
 import Header from "../Header";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
-import { IoMdAddCircleOutline } from "react-icons/io";
+import { useLocation, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { MdAddBox } from "react-icons/md";
 
 const AddBill = () => {
   const [FormData, setFormData] = useState({});
   const [categories, setcategories] = useState([]);
   const [categoriesData, setcategoriesData] = useState("");
-  const [loading, setLoding] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
   // const { id } = useParams();
   const location = useLocation();
-  const {id} = location.state;
+  const { id } = location.state;
   useEffect(() => {
     fetch("/api/user/getCategories/" + id)
       .then((res) => {
@@ -37,6 +35,7 @@ const AddBill = () => {
 
   const closeModal = () => {
     setShowModal(false);
+    toast.loading.remove();
   };
 
   const handleCategoriesChange = (e) => {
@@ -45,15 +44,14 @@ const AddBill = () => {
 
   const handleAddCategory = async () => {
     try {
-      setLoding(true);
+      const notifiyloading = toast.loading("Loading...");
       if (categoriesData == "") {
-        setLoding(false);
-        notifyWarning("Please enter a categorie");
+        notifyWarning("Please enter a categorie", notifiyloading);
         return;
       }
 
-      const res = await fetch("/api/user/updateCategories/" + id, {
-        method: "put",
+      const res = await fetch("/api/user/addCategories/" + id, {
+        method: "post",
         headers: {
           "Content-Type": "application/json",
         },
@@ -61,8 +59,10 @@ const AddBill = () => {
       });
       const data = await res.json();
       if (data.success === false) {
-        setLoding(false);
-        notifyError(data.message);
+        toast.error(data.message, {
+          id: notifiyloading,
+          style: { backgroundColor: "red", color: "white" },
+        });
         return;
       }
 
@@ -72,13 +72,21 @@ const AddBill = () => {
         })
         .then((res) => {
           setcategories(res);
+        })
+        .catch((err) => {
+          toast.error(data.message, {
+            id: notifiyloading,
+            style: { backgroundColor: "red", color: "white" },
+          });
+          return;
         });
-
-      setLoding(false);
+      toast.success("category added successfully", { id: notifiyloading });
       closeModal();
     } catch (error) {
-      setLoding(false);
-      notifyError(error.message);
+      toast.error(error.message, {
+        id: notifiyloading,
+        style: { backgroundColor: "red", color: "white" },
+      });
     }
   };
 
@@ -89,69 +97,24 @@ const AddBill = () => {
     });
   };
 
-  const notifyWarning = (message) => {
+  const notifyWarning = (message, notifiyloading) => {
     toast(message, {
+      id: notifiyloading,
       duration: 4000,
       position: "top-center",
-
-      // Styling
       style: {
         backgroundColor: "yellow",
       },
-      className: "",
-
-      // Custom Icon
       icon: "⚠️",
-
-      // Change colors of success/error/loading icon
-      iconTheme: {
-        primary: "#000",
-        secondary: "yellow",
-      },
-
-      // Aria
-      ariaProps: {
-        role: "status",
-        "aria-live": "polite",
-      },
-    });
-  };
-
-  const notifyError = (message) => {
-    toast(message, {
-      duration: 4000,
-      position: "top-center",
-
-      // Styling
-      style: {
-        backgroundColor: "red",
-      },
-      className: "",
-
-      // Custom Icon
-      icon: "⚠️",
-
-      // Change colors of success/error/loading icon
-      iconTheme: {
-        primary: "#000",
-        secondary: "yellow",
-      },
-
-      // Aria
-      ariaProps: {
-        role: "status",
-        "aria-live": "polite",
-      },
     });
   };
 
   const handlesubmit = async (e) => {
     try {
       e.preventDefault();
-      setLoding(true);
+      const notifiyloading = toast.loading("Loading...");
       if (FormData.categories == null) {
-        setLoding(false);
-        notifyWarning("Please enter a categories");
+        notifyWarning("Please enter a categories", notifiyloading);
         return;
       }
 
@@ -164,15 +127,19 @@ const AddBill = () => {
       });
       const data = await res.json();
       if (data.success === false) {
-        setLoding(false);
-        notifyError(data.message);
+        toast.error(data.message, {
+          id: notifiyloading,
+          style: { backgroundColor: "red", color: "white" },
+        });
         return;
       }
-      setLoding(false);
-      navigate("/AllBill",{state:{id:id}});
+      toast.success("Bill added successfully", { id: notifiyloading });
+      navigate("/AllBills", { state: { id: id } });
     } catch (error) {
-      setLoding(false);
-      notifyError(error.message);
+      toast.error(error.message, {
+        id: notifiyloading,
+        style: { backgroundColor: "red", color: "white" },
+      });
     }
   };
   return (
@@ -376,21 +343,28 @@ const AddBill = () => {
               </div>
             </div> */}
 
-            {/* save */}
+            {/* buttons */}
             <div className="md:flex md:items-center">
               <div className="md:w-1/3"></div>
-              <div className="md:w-2/3">
+              <div className="md:w-2/3 flex justify-between">
                 <button
-                  className="shadow bg-slate-700 hover:bg-slate-500 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded"
+                  className="shadow bg-slate-700 hover:bg-slate-500 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded "
                   type="submit"
                 >
                   Save
+                </button>
+                <button
+                  className="shadow bg-slate-700 hover:bg-slate-500 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded"
+                  onClick={() => {
+                    navigate("/Dashboard", { state: { id: id } });
+                  }}
+                >
+                  Discard
                 </button>
               </div>
             </div>
           </form>
         </div>
-        <Toaster />
       </div>
     </>
   );

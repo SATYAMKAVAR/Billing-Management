@@ -1,17 +1,14 @@
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 
 const Profile = () => {
   const [data, setData] = useState({});
-  const [error, setError] = useState(null);
-  const [loading, setLoding] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState(false);
-  // const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const {id} = location.state;
+  const { id } = location.state;
   useEffect(() => {
     // const res = await fetch("/api/user/"+id);
     // setData(res.json());
@@ -23,76 +20,21 @@ const Profile = () => {
         setData(res);
       });
   }, []);
-  
+
   const handleChange = (e) => {
     setData({ ...data, [e.target.id]: e.target.value });
   };
 
   const handleSignOut = () => {
-    localStorage.removeItem("userToken");
+    const notifiyloading = toast.loading("Loading...");
+    toast.success("User signed out successfully", { id: notifiyloading });
     navigate("/");
-  };
-
-  const notifyWarning = (message) => {
-    toast(message, {
-      duration: 4000,
-      position: "top-center",
-
-      // Styling
-      style: {
-        backgroundColor: "yellow",
-      },
-      className: "",
-
-      // Custom Icon
-      icon: "⚠️",
-
-      // Change colors of success/error/loading icon
-      iconTheme: {
-        primary: "#000",
-        secondary: "yellow",
-      },
-
-      // Aria
-      ariaProps: {
-        role: "status",
-        "aria-live": "polite",
-      },
-    });
-  };
-
-  const notifyError = (message) => {
-    toast(message, {
-      duration: 4000,
-      position: "top-center",
-
-      // Styling
-      style: {
-        backgroundColor: "red",
-      },
-      className: "",
-
-      // Custom Icon
-      icon: "⚠️",
-
-      // Change colors of success/error/loading icon
-      iconTheme: {
-        primary: "#000",
-        secondary: "yellow",
-      },
-
-      // Aria
-      ariaProps: {
-        role: "status",
-        "aria-live": "polite",
-      },
-    });
   };
 
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
-      setLoding(true);
+      const notifiyloading = toast.loading("Loading...");
       const res = await fetch(`/api/user/update/${id}`, {
         method: "POST",
         headers: {
@@ -102,52 +44,30 @@ const Profile = () => {
       });
       const resData = await res.json();
       if (resData.success === false) {
-        setLoding(false);
-        setError(resData.message);
-        notifyError(resData.message);
+        toast.error(data.message, {
+          id: notifiyloading,
+          style: { backgroundColor: "red", color: "white" },
+        });
         return;
       }
-      setLoding(false);
-      setError(null);
-      toast("User is updated successfully!", {
-        duration: 4000,
-        position: "bottom-center",
-
-        // Styling
-        style: {
-          backgroundColor: "#50BF5F",
-          marginBottom: "50px",
-          color: "white",
-        },
-        className: "",
-
-        // Custom Icon
-        icon: "🎉",
-
-        // Change colors of success/error/loading icon
-        iconTheme: {
-          primary: "#000",
-          secondary: "yellow",
-        },
-
-        // Aria
-        ariaProps: {
-          role: "status",
-          "aria-live": "polite",
-        },
-      });
+      toast.success("User updated successfully", { id: notifiyloading });
     } catch (error) {
-      setLoding(false);
-      setError(error.message);
-      notifyError(error.message);
+      toast.error(error.message, {
+        id: notifiyloading,
+        style: { backgroundColor: "red", color: "white" },
+      });
     }
   };
 
-  const handleDeleteUser = async () => {
+  const handleDeactivateUser = async () => {
     try {
       // const res = await fetch(`/api/user/delete/${data._id}`, {
       //   method: "DELETE",
       // });
+      if (!confirm("Are you sure you want to deactivate")) {
+        return;
+      }
+      const notifiyloading = toast.loading("Loading...");
       const res = await fetch(`/api/user/update/${id}`, {
         method: "POST",
         headers: {
@@ -157,44 +77,19 @@ const Profile = () => {
       });
       const resData = await res.json();
       if (resData.success === false) {
-        setError(resData.message);
-        notifyError(resData.message);
+        toast.error(resData.message, {
+          id: notifiyloading,
+          style: { backgroundColor: "red", color: "white" },
+        });
         return;
       }
-      toast("User is Deactivate successfully!", {
-        duration: 2500,
-        position: "bottom-center",
-
-        // Styling
-        style: {
-          backgroundColor: "#50BF5F",
-          marginBottom: "50px",
-          color: "white",
-        },
-        className: "",
-
-        // Custom Icon
-        icon: "🎉",
-
-        // Change colors of success/error/loading icon
-        iconTheme: {
-          primary: "#000",
-          secondary: "yellow",
-        },
-
-        // Aria
-        ariaProps: {
-          role: "status",
-          "aria-live": "polite",
-        },
-      });
-      setError(null);
-      setInterval(() => {
-        navigate("/");
-      }, 3000);
+      toast.success("User is Deactivate successfully!", { id: notifiyloading });
+      navigate("/");
     } catch (error) {
-      setError(error.message);
-      notifyError(error.message);
+      toast.error(error.message, {
+        id: notifiyloading,
+        style: { backgroundColor: "red", color: "white" },
+      });
     }
   };
   return (
@@ -233,7 +128,7 @@ const Profile = () => {
             type="text"
             placeholder="username"
             id="username"
-            className="border p-3 rounded-lg"
+            className="border bg-slate-200 p-3 rounded-lg"
             defaultValue={data.username}
             onChange={handleChange}
             required
@@ -242,7 +137,7 @@ const Profile = () => {
             type="email"
             placeholder="email"
             id="email"
-            className="border p-3 rounded-lg"
+            className="border bg-slate-200 p-3 rounded-lg"
             defaultValue={data.email}
             onChange={handleChange}
             required
@@ -251,7 +146,7 @@ const Profile = () => {
             type="text"
             placeholder="password"
             id="password"
-            className="border p-3 rounded-lg"
+            className="border bg-slate-200 p-3 rounded-lg"
             defaultValue={data.password}
             onChange={handleChange}
             required
@@ -262,7 +157,7 @@ const Profile = () => {
         </form>
         <div className="flex justify-between mt-5">
           <span
-            onClick={handleDeleteUser}
+            onClick={handleDeactivateUser}
             className="text-red-700 cursor-pointer"
           >
             Deactivate account
@@ -277,10 +172,7 @@ const Profile = () => {
             Sign out
           </span>
         </div>
-        <p className="text-red-700 mt-5">{error ? error : ""}</p>
-        <p className="text-green-700 mt-5"></p>
       </div>
-      <Toaster />
     </>
   );
 };

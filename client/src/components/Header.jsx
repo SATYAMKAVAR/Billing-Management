@@ -1,6 +1,4 @@
-import { Link, useLocation, useParams } from "react-router-dom";
-import { FaSearch } from "react-icons/fa";
-import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 const Header = () => {
   // const { id } = useParams();
@@ -40,7 +38,7 @@ const Header = () => {
               All categories
             </li>
           </Link>
-          <Link to={"/AllBill"} state={{ id: id }}>
+          <Link to={"/AllBills"} state={{ id: id }}>
             <li className="hidden sm:inline text-slate-800 hover:underline">
               All Bill
             </li>

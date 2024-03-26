@@ -29,6 +29,7 @@ const userSchema = new mongoose.Schema(
     isActive: { type: Boolean, default: true },
     categories: {
       type: [String],
+      unique: true,
       default: [
         "Choose a Categories",
         "Shopping",

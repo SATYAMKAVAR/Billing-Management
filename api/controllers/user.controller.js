@@ -130,16 +130,48 @@ export const getCategories = async (req, res, next) => {
   }
 };
 
-export const updateCategories = async (req, res, next) => {
+export const addCategories = async (req, res, next) => {
   const { id } = req.params;
   const { categories } = req.body;
   try {
-    const updateCategories = await User.findByIdAndUpdate(
+    const addCategories = await User.findByIdAndUpdate(
       id,
       { $set: { categories: categories } },
       { new: true }
     );
+    res.status(200).json(addCategories);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateCategories = async (req, res, next) => {
+  const { id } = req.params;
+  const { categories, index } = req.body;
+  try {
+    const updateCategories = await User.findByIdAndUpdate(
+      id,
+      {
+        $set: { [`categories.${index}`]:  categories  },
+      },
+      { new: true }
+    );
     res.status(200).json(updateCategories);
+  } catch (error) {
+    next(error);
+  }
+};
+export const deleteCategories = async (req, res, next) => {
+  const { id } = req.params;
+  const { index } = req.body;
+  try {
+    const deleteCategories = await User.findByIdAndUpdate(
+      id,
+      { $unset: { [`categories.${index}`]: "1" } },
+      { new: true }
+    );
+    await User.findByIdAndUpdate(id, { $pull: { categories: null } }, { new: true });
+    res.status(200).json(deleteCategories);
   } catch (error) {
     next(error);
   }

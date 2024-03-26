@@ -11,22 +11,22 @@ mongoose
     console.log("connected to MongoDb!");
   })
   .catch((error) => console.log(error));
-  
-  const app = express();
-  app.use(express.json());
-  app.use('/api/user',userRouter)
-  app.use('/api/auth',authRouter)
 
-  app.use((err,req,res,next)=>{
-    const statuscode = err.statuscode || 500;
-    const message = err.message || 'Internal Server Error';
-    return res.status(statuscode).json({
-      success:false,
-      statuscode,
-      message
-    });
-  })
+const app = express();
+app.use(express.json());
+app.use("/api/user", userRouter);
+app.use("/api/auth", authRouter);
 
-  app.listen(3000, () => {
-    console.log("http://localhost:3000");
+app.use((err, req, res, next) => {
+  const statuscode = err.statuscode || 500;
+  const message = err.message || "Internal Server Error";
+  return res.status(statuscode).json({
+    success: false,
+    statuscode,
+    message,
   });
+});
+
+app.listen(3000, () => {
+  console.log("http://localhost:3000");
+});
