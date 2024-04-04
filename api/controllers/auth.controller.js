@@ -44,10 +44,18 @@ const signin = async (req, res, next) => {
 
 const sendOTP = async (req, res, next) => {
   try {
-    const { toUser } = req.body;
-    const validUser = await User.findOne({ email: toUser });
-    if (!validUser) return next(errorHandler(404, "User not found!"));
-
+    const { email, forActive, forSignup ,username } = req.body;
+    if (forActive) {
+      const validUser = await User.findOne({ email });
+      if (!validUser) return next(errorHandler(404, "User not found!"));
+    }
+    if (forSignup) {
+      const validUserName = await User.findOne({ username });
+      if (validUserName)
+        return next(errorHandler(404, "UserName already exists!"));
+      const validUser = await User.findOne({ email });
+      if (validUser) return next(errorHandler(404, "User already exists!"));
+    }
     let transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -68,17 +76,16 @@ const sendOTP = async (req, res, next) => {
 
     let mailOptions = {
       from: process.env.authEmail,
-      to: toUser,
-      subject: "Test Email",
+      to: email,
+      subject: "OTP",
       html: `
       <div style="padding:10px;border-style: ridge">
-        <h5>This mail from Billing Management System </h5>
+        <h4>This mail from Billing Management System </h4>
         <ul>
-          <li>Email : ${req.body.to}</li>
-          <li>Subject : Active your id</li>
+          <li>Email : ${req.body.email}</li>
         </ul>
         <div>
-          <h3>Here is your active approval code :</h3>
+          <h3>Here is your otp :</h3>
           <h1>${otp}</h1>
         </div>
       </div>`,
@@ -101,8 +108,8 @@ const sendOTP = async (req, res, next) => {
 
 const activeEmail = async (req, res, next) => {
   try {
-    const { toUser } = req.body;
-    const validUser = await User.findOne({ email: toUser });
+    const { email } = req.body;
+    const validUser = await User.findOne({ email: email });
     if (!validUser) return next(errorHandler(404, "User not found!"));
     if (validUser.isActive) {
       res.json("Your account is already activated");

@@ -17,8 +17,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route index element={<Signin />} />
-          <Route path="sign-up" element={<SignUp />} />
-          <Route path="sign-in" element={<Signin />} />
+          <Route path="/sign-up" element={<SignUp />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/Dashboard" element={<Dashboard />} />
           <Route path="/CreateNewBill" element={<AddBill />} />
