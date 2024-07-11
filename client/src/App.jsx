@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, HashRouter } from "react-router-dom";
 import "./App.css";
 import Signin from "./pages/Signin";
 import Profile from "./pages/Profile";
@@ -14,7 +14,7 @@ import { Toaster } from "react-hot-toast";
 function App() {
   return (
     <>
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           <Route index element={<Signin />} />
           <Route path="/sign-up" element={<SignUp />} />
@@ -25,7 +25,7 @@ function App() {
           <Route path="/UpdateBill/:index" element={<UpdateBill />} />
           <Route path="/AllCategories" element={<AllCategories />} />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
       <Toaster position="bottom-center" containerStyle={{margin:"50px"}}/>
     </>
   );
