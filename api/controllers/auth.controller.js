@@ -31,10 +31,8 @@ const signin = async (req, res, next) => {
     if (!validPassword) return next(errorHandler(401, "Wrong Password!"));
     if (!validUser.isActive)
       return next(errorHandler(401, "Your account has been Deactivated"));
-    const token = jwt.sign({ id: validUser._id }, process.env.jwt_SECRET);
     const { password: pass, ...rest } = validUser._doc;
     res
-      .cookie("access_token", token, { httpOonly: true })
       .status(200)
       .json(rest);
   } catch (error) {

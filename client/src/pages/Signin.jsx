@@ -112,6 +112,7 @@ const Signin = () => {
     try {
       e.preventDefault();
       const notifiyloading = toast.loading("Loading...");
+      console.log(formData);
       const res = await fetch("/api/auth/signin", {
         method: "post",
         headers: {

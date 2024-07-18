@@ -1,4 +1,5 @@
 {
+  "homepage": "https://github.com/SATYAMKAVAR/Billing-Management.git",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.1",
@@ -10,8 +11,12 @@
   },
   "scripts": {
     "dev": "nodemon api/server.js",
-    "start": "node api/server.js"
+    "start": "node api/server.js",
+    "deploy": "cd client && npm run build && gh-pages -d dist"
   },
   "license": "ISC",
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "gh-pages": "^6.1.1"
+  }
 }
