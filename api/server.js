@@ -14,7 +14,7 @@ mongoose
   .catch((error) => console.log(error));
 
 const app = express();
-app.use(cors());
+app.use(cors({origin: "https://billing-management-vcfq.onrender.com"}));
 app.use(express.json());
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
