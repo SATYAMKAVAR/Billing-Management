@@ -8,8 +8,10 @@ export default defineConfig({
       "/api": {
         target: "https://billing-management-vcfq.onrender.com",
         secure: false,
+        changeOrigin: true,
       },
     },
   },
-  plugins: [react()],
+  plugins: [react()],      
+
 })
