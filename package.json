@@ -19,5 +19,10 @@
   "type": "module",
   "devDependencies": {
     "gh-pages": "^6.1.1"
-  }
+  },
+  "name": "billing-management",
+  "description": "��#\u0000 \u0000B\u0000i\u0000l\u0000l\u0000i\u0000n\u0000g\u0000-\u0000M\u0000a\u0000n\u0000a\u0000g\u0000e\u0000m\u0000e\u0000n\u0000t\u0000\r\u0000 \u0000",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": ""
 }
